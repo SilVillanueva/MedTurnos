@@ -1,0 +1,40 @@
+services:
+   backend:
+      build: .
+      ports:
+         - '4001:4001'
+      env_file:
+         - .env
+      depends_on:
+         - db
+      volumes:
+         - .:/app
+         - ./logs:/app/logs
+      command: npm start
+   backend-tests:
+      build: .
+      depends_on:
+         - db
+      env_file:
+         - .env
+      volumes:
+         - .:/app
+      command: npm test
+
+   db:
+      image: mysql:8
+      restart: always
+      env_file:
+         - .env
+      ports:
+         - '3307:3306'
+      volumes:
+         - mysql-data:/var/lib/mysql
+         - ./scripts:/docker-entrypoint-initdb.d
+         - ./mysql-conf:/etc/mysql/conf.d
+      environment:
+         - MYSQL_ROOT_PASSWORD=${DB_PASS}
+         - MYSQL_DATABASE=${DB_NAME}
+
+volumes:
+   mysql-data:
